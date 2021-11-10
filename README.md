@@ -1,2 +1,2 @@
-# fitness-tracker
+# Workout Tracker
 Boot Camp HW # 14
