@@ -1,9 +1,10 @@
 const router = require("express").Router();
-const Workout = require("../models/workout.js");
+const Workout = require("../../models/Workouts");
 
-// Get last workout information
-router.get("/", (req, res) => {
-  Workout.aggregate({ $addFields: { duration: { $sum: "exercise.duration" } } })
+router.get("/api/workouts", (req, res) => {
+  Workout.aggregate({
+    $addFields: { totalDuration: { $sum: "$exercises.duration" } },
+  })
     .then((db) => {
       res.json(db);
     })
@@ -12,9 +13,10 @@ router.get("/", (req, res) => {
     });
 });
 
-// Get <-- get workout duration of previous 7 workouts
-router.get("/range", (req, res) => {
-  Workout.aggregate({ $addFields: { duration: { $sum: "exercise.duration" } } })
+router.get("/api/workouts/range", (req, res) => {
+  Workout.aggregate({
+    $addFields: { totalDuration: { $sum: "$exercises.duration" } },
+  })
     .limit(7)
     .then((db) => {
       res.json(db);
@@ -25,7 +27,7 @@ router.get("/range", (req, res) => {
 });
 
 // Post <-- add new workout
-router.post("/", (req, res) => {
+router.post("/api/workout/", (req, res) => {
   Workout.create(req.body)
     .then((db) => {
       res.json(db);
@@ -36,10 +38,10 @@ router.post("/", (req, res) => {
 });
 
 // Put <-- add new exercise
-router.put("/:id", (req, res) => {
-  Workout.update(
-    { id: req.params.id },
-    { $push: { exercise: req.body } },
+router.put("/api/workouts/:id", (req, res) => {
+  Workout.updateOne(
+    { _id: req.params.id },
+    { $push: { exercises: req.body } },
     (err, db) => {
       if (err) {
         res.status(400).json(err);
